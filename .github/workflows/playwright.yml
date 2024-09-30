@@ -33,7 +33,7 @@ jobs:
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v2
         with:
-          dotnet-version: '8.0.400'  # Use the version matching your Blazor app
+          dotnet-version: 8.0.8'  # Use the version matching your Blazor app
 
       # Step 3: Restore dependencies
       - name: Restore Dependencies
