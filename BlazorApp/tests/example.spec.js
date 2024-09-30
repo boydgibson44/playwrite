@@ -14,8 +14,14 @@ test.describe('Blazor Web App Tests', () => {
 
     test('Weather Page - Title', async ({ page }) => {
         await page.goto(`${baseURL}/weather`, { waitUntil: 'networkidle' }); // Wait until there are no network connections for at least 500 ms
-        //await expect(page).toHaveTitle(/Weather/, { timeout: 10000 }); // Set timeout to 10 seconds
+        
     });
+    // Test: Fails in UI Mode due to race condition and improper assumption about the counter update timing
+    test('Weather Page - Title | Fails in UI Mode due to timeout', async ({ page }) => {
+        await page.goto(`${baseURL}/weather`, { waitUntil: 'networkidle' }); // Wait until there are no network connections for at least 500 ms
+        await expect(page).toHaveTitle(/Weather/, { timeout: 10000 }); // Set timeout to 10 seconds
+    });
+
 
     test('Counter Page - Title', async ({ page }) => {
         await page.goto(`${baseURL}/counter`, { waitUntil: 'networkidle', timeout: 30000 });

@@ -164,8 +164,23 @@ test.describe('Counter Page Tests', () => {
     });
 
 
+    // Test 7: Fails in UI Mode due to race condition and improper assumption about the counter update timing (Test timeout of 30000ms exceeded.)
+    test('Cross-Page Navigation - Counter to Weather| Fails in UI Mode due to Timing Assumption', async ({ page }) => {
+        await page.goto(`${baseURL}/counter`, { waitUntil: 'networkidle', timeout: 120000 });
+        await page.waitForTimeout(2000); // Add delay to allow content to load
+        console.log(await page.content());
 
+        // Wait for the counter and check if it's available
+        await page.waitForSelector('#counter-value', { timeout: 60000 });
+        const weatherLink = await page.locator('a[href="/weather"]');
 
+        if (await weatherLink.count() === 0) {
+            console.error('Weather link not found');
+        } else {
+            await weatherLink.click();
+            await expect(page).toHaveTitle(/Weather/, { timeout: 15000 });
+        }
+    });
 
 
 });
