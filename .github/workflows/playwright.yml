@@ -14,14 +14,14 @@ jobs:
 
     services:
       web:
-        image: mcr.microsoft.com/dotnet/aspnet:5.0
+        image: mcr.microsoft.com/dotnet/aspnet:7.0
         ports:
           - 5128:80
         options: >-
           --health-cmd "curl --fail http://localhost:80/ || exit 1"
           --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-timeout 10s
+          --health-retries 10
 
     steps:
       - name: Checkout repository
@@ -41,7 +41,10 @@ jobs:
       - name: Start the Application
         run: |
           dotnet run --urls=http://localhost:5128 &
-          sleep 10 # Give the server time to start
+          sleep 20  # Increase sleep time to ensure the app is fully started
+
+      - name: Get container logs (for debugging)
+        run: docker logs $(docker ps -q --filter ancestor=mcr.microsoft.com/dotnet/aspnet:7.0)
 
       - name: Run Playwright tests
         run: npx playwright test
