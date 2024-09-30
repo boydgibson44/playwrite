@@ -15,15 +15,14 @@ jobs:
 
     services:
       blazorapp:
-        image: mcr.microsoft.com/dotnet/aspnet:7.0-bullseye-slim # Adjust this if using a different .NET version
+        image: mcr.microsoft.com/dotnet/aspnet:7.0-bullseye-slim
         ports:
           - 5128:5128
         options: > 
-          --name blazor-app-service
-          --health-cmd "curl --fail http://localhost:5128 || exit 1"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 3
+          --health-cmd="curl --fail http://localhost:5128 || exit 1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
 
     steps:
       # Step 1: Checkout the repository
