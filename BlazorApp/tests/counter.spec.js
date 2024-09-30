@@ -146,4 +146,26 @@ test.describe('Counter Page Tests', () => {
         }
     });
 
+    // Test 6: Fails in UI Mode due to race condition and improper assumption about the counter update timing
+    test('Counter Page - Counter Initialized | Fails in UI Mode due to Timing Assumption', async ({ page }) => {
+
+        await page.goto(`${baseURL}/counter`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+
+        // Log page content and screenshot for debugging
+        await page.screenshot({ path: 'counter-page.png' });
+        console.log(await page.content());
+
+        // Check for counter and button visibility
+        await page.waitForSelector('#counter-value', { timeout: 90000, visible: true });
+        const counterValue = await page.locator('#counter-value').textContent();
+        expect(counterValue).toBe('0');
+
+        await page.waitForSelector('button#increment', { timeout: 90000, visible: true });
+    });
+
+
+
+
+
+
 });
