@@ -19,9 +19,9 @@ jobs:
           - 5128:80
         options: >-
           --health-cmd "curl --fail http://localhost:80/ || exit 1"
-          --health-interval 30s  # Increased to 30 seconds
-          --health-timeout 20s   # Increased to 20 seconds
-          --health-retries 10    # Increased retries
+          --health-interval 30s
+          --health-timeout 20s
+          --health-retries 10
 
     steps:
       - name: Checkout repository
