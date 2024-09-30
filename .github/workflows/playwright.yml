@@ -1,6 +1,5 @@
 name: Playwright Tests for Blazor App
 
-# Trigger on push to main or pull requests
 on:
   push:
     branches:
@@ -18,11 +17,7 @@ jobs:
         image: mcr.microsoft.com/dotnet/aspnet:7.0-bullseye-slim
         ports:
           - 5128:5128
-        options: > 
-          --health-cmd="curl --fail http://localhost:5128 || exit 1"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=3
+        options: --health-cmd="curl --fail http://localhost:5128 || exit 1" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
       # Step 1: Checkout the repository
@@ -33,7 +28,7 @@ jobs:
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v2
         with:
-          dotnet-version: 8.0.8'  # Use the version matching your Blazor app
+          dotnet-version: 8.0.8
 
       # Step 3: Restore dependencies
       - name: Restore Dependencies
@@ -54,7 +49,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '16.x' # Playwright works well with Node.js 14 or higher
+          node-version: '16.x'
 
       # Step 7: Install dependencies
       - name: Install Playwright and Dependencies
