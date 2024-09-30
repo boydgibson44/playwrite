@@ -17,9 +17,8 @@ jobs:
         image: mcr.microsoft.com/dotnet/aspnet:7.0-bullseye-slim
         ports:
           - 5128:5128
-        options: > 
-          --health-cmd="curl --fail http://localhost:5128 || exit 1" --health-interval=60s --health-timeout=30s --health-retries=10
-        entrypoint: ["dotnet", "yourapp.dll"]  # Replace 'yourapp.dll' with your actual app's DLL name
+        # Keep all options in a single line to avoid newlines being inserted
+        options: --health-cmd="curl --fail http://localhost:5128 || exit 1" --health-interval=60s --health-timeout=30s --health-retries=10
 
     steps:
       # Step 1: Checkout the repository
@@ -40,7 +39,7 @@ jobs:
       - name: Build the Blazor App
         run: dotnet build --configuration Release
 
-      # Step 5: Start Blazor app and run it in the background
+      # Step 5: Start Blazor app and run it in the background with the environment variable
       - name: Run Blazor App
         run: |
           ASPNETCORE_URLS="http://0.0.0.0:5128" dotnet run --configuration Release --no-build --urls=http://localhost:5128 &
