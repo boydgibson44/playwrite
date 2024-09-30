@@ -17,7 +17,11 @@ jobs:
         image: mcr.microsoft.com/dotnet/aspnet:7.0-bullseye-slim
         ports:
           - 5128:5128
-        options: --health-cmd="curl --fail http://localhost:5128 || exit 1" --health-interval=30s --health-timeout=10s --health-retries=5
+        options: > 
+          --health-cmd="curl --fail http://localhost:5128 || exit 1"
+          --health-interval=60s  # Give more time between health checks
+          --health-timeout=30s  # Allow more time for the health check to succeed
+          --health-retries=10  # Increase retries to give more chances for the app to start
 
     steps:
       # Step 1: Checkout the repository
@@ -38,11 +42,11 @@ jobs:
       - name: Build the Blazor App
         run: dotnet build --configuration Release
 
-      # Step 5: Start Blazor app and run it in the background
+      # Step 5: Start Blazor app and run it in the background with the environment variable
       - name: Run Blazor App
         run: |
-          dotnet run --configuration Release --no-build --urls=http://localhost:5128 &
-          sleep 30 # Wait for the Blazor app to start
+          ASPNETCORE_URLS="http://0.0.0.0:5128" dotnet run --configuration Release --no-build --urls=http://localhost:5128 &
+          sleep 60 # Increased sleep time to ensure the app is fully started
         continue-on-error: true
 
       # Step 6: Set up Node.js for Playwright
@@ -61,7 +65,7 @@ jobs:
       - name: Run Playwright Tests
         run: npm test
 
-      # Step 9: Capture logs from the failed container
+      # Step 9: Capture logs from the failed container (if it fails)
       - name: Get Docker container logs (if failed)
         if: failure()
         run: |
