@@ -65,16 +65,21 @@ jobs:
       - name: Run Playwright Tests
         run: npm test
 
-      # Step 9: Capture logs from the failed container (if it fails)
+      # Step 9: Capture logs from the container (if it fails)
       - name: Get Docker container logs (if failed)
         if: failure()
         run: |
           echo "Listing all containers:"
           docker ps -a  # List all containers to see their state
-          echo "Inspecting the container:"
-          docker inspect $(docker ps -q --filter ancestor=mcr.microsoft.com/dotnet/aspnet:7.0-bullseye-slim) || true  # Get detailed info about the container
-          echo "Getting logs from the container:"
-          docker logs $(docker ps -q --filter ancestor=mcr.microsoft.com/dotnet/aspnet:7.0-bullseye-slim) || true  # Capture logs from the container
+          CONTAINER_ID=$(docker ps -aq --filter ancestor=mcr.microsoft.com/dotnet/aspnet:7.0-bullseye-slim)  # Get container ID
+          if [ -n "$CONTAINER_ID" ]; then
+            echo "Inspecting the container:"
+            docker inspect "$CONTAINER_ID" || true  # Inspect the container
+            echo "Getting logs from the container:"
+            docker logs "$CONTAINER_ID" || true  # Capture logs from the container
+          else
+            echo "No container found for the Blazor app"
+          fi
 
       # Step 10: Cleanup after tests (optional)
       - name: Stop Blazor App
