@@ -19,9 +19,9 @@ jobs:
           - 5128:80
         options: >-
           --health-cmd "curl --fail http://localhost:80/ || exit 1"
-          --health-interval 10s
-          --health-timeout 10s
-          --health-retries 10
+          --health-interval 30s  # Increased to 30 seconds
+          --health-timeout 20s   # Increased to 20 seconds
+          --health-retries 10    # Increased retries
 
     steps:
       - name: Checkout repository
@@ -42,17 +42,17 @@ jobs:
         run: |
           dotnet build
           dotnet run --urls=http://localhost:5128 &
-          sleep 30  # Increase sleep time to ensure the app is fully started
+          sleep 30  # Increased sleep time to ensure the app is fully started
 
       - name: Get container logs (for debugging)
-        run: docker logs $(docker ps -q --filter ancestor=mcr.microsoft.com/dotnet/aspnet:7.0)
+        run: docker logs $(docker ps -q --filter ancestor=mcr.microsoft.com/dotnet/aspnet:7.0) || true
 
       - name: Run Playwright tests
         run: npx playwright test --timeout=60000  # Increased timeout to avoid timeout errors
 
       - name: Upload test artifacts (screenshots, videos)
         if: failure()  # Only upload if the tests fail
-        uses: actions/upload-artifact@v4  # Updated to version 4
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-artifacts
           path: playwright-report
