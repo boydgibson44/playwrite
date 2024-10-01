@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "CommonJS",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./dist" // optional: to specify where the compiled JS files go
+  },
+  "include": [ "tests/**/*.ts" ] // Add your TypeScript test directory here
+}
