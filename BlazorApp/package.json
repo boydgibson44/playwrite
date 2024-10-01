@@ -6,9 +6,17 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "devDependencies": {
     "@playwright/test": "^1.47.2",
-    "@types/node": "^22.7.4"
-  }
+    "@types/node": "^22.7.4",
+    "playwright": "^1.47.2"
+  },
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {
+    "playwright-core": "^1.47.2",
+    "undici-types": "^6.19.8"
+  },
+  "description": ""
 }
