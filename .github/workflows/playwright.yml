@@ -1,83 +1,27 @@
-name: Playwright Tests for Blazor App
-
+name: Playwright Tests
 on:
   push:
-    branches:
-      - main
+    branches: [ main, master ]
   pull_request:
-    branches:
-      - main
-
+    branches: [ main, master ]
 jobs:
-  build-and-test:
+  test:
+    timeout-minutes: 60
     runs-on: ubuntu-latest
-
-    services:
-      blazorapp:
-        image: mcr.microsoft.com/dotnet/aspnet:7.0-bullseye-slim
-        ports:
-          - 5128:5128
-        # Keep all options in a single line to avoid newlines being inserted
-        options: --health-cmd="curl --fail http://localhost:5128 || exit 1" --health-interval=60s --health-timeout=30s --health-retries=10
-
     steps:
-      # Step 1: Checkout the repository
-      - name: Checkout Code
-        uses: actions/checkout@v2
-
-      # Step 2: Set up .NET Core SDK
-      - name: Setup .NET Core SDK
-        uses: actions/setup-dotnet@v2
-        with:
-          dotnet-version: 8.0.8
-
-      # Step 3: Restore dependencies
-      - name: Restore Dependencies
-        run: dotnet restore
-
-      # Step 4: Build the Blazor app
-      - name: Build the Blazor App
-        run: dotnet build --configuration Release
-
-      # Step 5: Start Blazor app and run it in the background with the environment variable
-      - name: Run Blazor App
-        run: |
-          ASPNETCORE_URLS="http://0.0.0.0:5128" dotnet run --configuration Release --no-build --urls=http://localhost:5128 &
-          sleep 60 # Increased sleep time to ensure the app is fully started
-        continue-on-error: true
-
-      # Step 6: Set up Node.js for Playwright
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '16.x'
-
-      # Step 7: Install Playwright and Dependencies
-      - name: Install Playwright and Dependencies
-        run: |
-          npm install
-          npx playwright install --with-deps
-
-      # Step 8: Run Playwright tests
-      - name: Run Playwright Tests
-        run: npm test
-
-      # Step 9: Capture logs from the container (if it fails)
-      - name: Get Docker container logs (if failed)
-        if: failure()
-        run: |
-          echo "Listing all containers:"
-          docker ps -a  # List all containers to see their state
-          CONTAINER_ID=$(docker ps -aq --filter ancestor=mcr.microsoft.com/dotnet/aspnet:7.0-bullseye-slim)  # Get container ID
-          if [ -n "$CONTAINER_ID" ]; then
-            echo "Inspecting the container:"
-            docker inspect "$CONTAINER_ID" || true  # Inspect the container
-            echo "Getting logs from the container:"
-            docker logs "$CONTAINER_ID" || true  # Capture logs from the container
-          else
-            echo "No container found for the Blazor app"
-          fi
-
-      # Step 10: Cleanup after tests (optional)
-      - name: Stop Blazor App
-        run: kill $(lsof -t -i:5128) || true
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+    - name: Install dependencies
+      run: npm ci
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+    - name: Run Playwright tests
+      run: npx playwright test
+    - uses: actions/upload-artifact@v4
+      if: ${{ !cancelled() }}
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30
