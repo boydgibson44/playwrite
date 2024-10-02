@@ -43,24 +43,28 @@ module.exports = defineConfig({
             name: 'firefox',
             use: { ...devices['Desktop Firefox'] },
         },
+
+        
         {
+            //timesout for some tests
             name: 'webkit',
             use: {
                 ...devices['Desktop Safari'],
                 timeout: 120000, // 120 seconds for the entire test
                 actionTimeout: 30000, // Increase action timeout to 30 seconds
-                screenshot: 'on',
-                trace: 'on-first-retry',
+                screenshot: 'on',// Shows snapshot of faild screen
+                trace: 'on-first-retry',// Helps capture information about the test execution, including screenshots, network requests, console logs; for debugging failed tests.
             },
         },
         {
+            //timesout for some tests
             name: 'Mobile Safari',
             use: {
                 ...devices['iPhone 12'],
                 timeout: 120000, // 120 seconds for the entire test
                 actionTimeout: 30000, // Increase action timeout to 30 seconds
-                screenshot: 'on',
-                trace: 'on-first-retry',
+                screenshot: 'on',// Shows snapshot of faild screen
+                trace: 'on-first-retry', // Helps capture information about the test execution, including screenshots, network requests, console logs; for debugging failed tests.
             },
         },
     ],
