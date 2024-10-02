@@ -54,6 +54,7 @@ jobs:
           fi
           if [ "$TIME_WAITED" -ge "$MAX_WAIT" ]; then
             echo "Blazor app failed to start within ${MAX_WAIT} seconds."
+            cat blazor.log
             exit 1
           fi
           sleep 5
