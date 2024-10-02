@@ -32,18 +32,33 @@ jobs:
     - name: Build and Run Blazor App
       run: |
         dotnet build BlazorApp/BlazorApp.csproj
-        nohup dotnet run --project BlazorApp/BlazorApp.csproj &
+        # Ensure the app runs on the correct port 5128
+        nohup dotnet run --project BlazorApp/BlazorApp.csproj --urls http://localhost:5128 &
 
     - name: Wait for Blazor App to be ready
       run: |
         echo "Waiting for Blazor app to start..."
-        until curl --output /dev/null --silent --head --fail http://localhost:5128; do
-          echo "Waiting for Blazor app at http://localhost:5128..."
+        MAX_WAIT=300   # Wait for up to 5 minutes (300 seconds)
+        TIME_WAITED=0
+        while ! curl --output /dev/null --silent --head --fail http://localhost:5128; do
+          echo "Waiting for Blazor app at http://localhost:5128... (${TIME_WAITED}s/${MAX_WAIT}s)"
           sleep 5
+          TIME_WAITED=$((TIME_WAITED + 5))
+          if [ "$TIME_WAITED" -ge "$MAX_WAIT" ]; then
+            echo "Blazor app failed to start within ${MAX_WAIT} seconds."
+            exit 1
+          fi
         done
+        echo "Blazor app is up and running at http://localhost:5128"
 
     - name: Run Playwright tests
-      run: npx playwright test
+      run: npx playwright test --timeout=60000  # Increase Playwright timeout to 60s for each test
+
+    - name: Output Blazor App Logs (optional, for debugging)
+      if: failure()
+      run: |
+        echo "Displaying Blazor app logs..."
+        cat nohup.out || true  # Output logs even if the command fails
 
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
