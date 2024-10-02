@@ -9,6 +9,7 @@ module.exports = defineConfig({
     workers: process.env.CI ? 1 : undefined,
     reporter: 'html',
     use: {
+        baseURL: 'http://localhost:5128',  // Set the base URL here
         timeout: 90000,
         trace: 'on',
         waitUntil: 'networkidle',
