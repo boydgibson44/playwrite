@@ -29,15 +29,22 @@ jobs:
       with:
         dotnet-version: '8.x'
 
+    - name: Ensure Port 5128 is Free
+      run: |
+        if lsof -i :5128; then
+          echo "Port 5128 is already in use."
+          exit 1
+        fi
+
     - name: Build and Run Blazor App
       run: |
         dotnet build BlazorApp/BlazorApp.csproj
-        nohup dotnet run --project BlazorApp/BlazorApp.csproj --urls "http://localhost:5128" &
+        nohup dotnet run --project BlazorApp/BlazorApp.csproj --urls "http://localhost:5128" > blazor.log 2>&1 &
 
     - name: Wait for Blazor App to be ready
       run: |
         echo "Waiting for Blazor app to start..."
-        MAX_WAIT=300
+        MAX_WAIT=600  # Increase to 10 minutes
         TIME_WAITED=0
         while ! curl --output /dev/null --silent --head --fail http://localhost:5128; do
           echo "Waiting for Blazor app at http://localhost:5128... (${TIME_WAITED}s/${MAX_WAIT}s)"
@@ -50,14 +57,19 @@ jobs:
         done
         echo "Blazor app is up and running at http://localhost:5128"
 
+    - name: Verify Blazor App Process
+      run: |
+        if ! pgrep -f "dotnet run --project BlazorApp/BlazorApp.csproj"; then
+          echo "Blazor app process is not running."
+          exit 1
+        fi
+
     - name: Run Playwright tests
       run: npx playwright test --timeout=60000
 
-    - name: Output Blazor App Logs (optional, for debugging)
+    - name: Output Blazor App Logs
       if: failure()
-      run: |
-        echo "Displaying Blazor app logs..."
-        cat nohup.out || true
+      run: cat blazor.log
 
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
