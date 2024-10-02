@@ -54,6 +54,8 @@ module.exports = defineConfig({
                 actionTimeout: 30000, // Increase action timeout to 30 seconds
                 screenshot: 'on',// Shows snapshot of faild screen
                 trace: 'on-first-retry',// Helps capture information about the test execution, including screenshots, network requests, console logs; for debugging failed tests.
+                //video: 'retain-on-failure', // Record video and retain it only for failed tests
+
             },
         },
         {
@@ -65,6 +67,7 @@ module.exports = defineConfig({
                 actionTimeout: 30000, // Increase action timeout to 30 seconds
                 screenshot: 'on',// Shows snapshot of faild screen
                 trace: 'on-first-retry', // Helps capture information about the test execution, including screenshots, network requests, console logs; for debugging failed tests.
+                //video: 'retain-on-failure', // Record video and retain it only for failed tests
             },
         },
     ],
