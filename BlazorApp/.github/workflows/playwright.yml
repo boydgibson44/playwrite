@@ -38,7 +38,7 @@ jobs:
       id: blazor-url
       run: |
         echo "Waiting for Blazor app to start..."
-        MAX_WAIT=900
+        MAX_WAIT=900  # wait for up to 15 minutes
         TIME_WAITED=0
         URL=""
         while [ -z "$URL" ]; do
@@ -69,10 +69,6 @@ jobs:
     - name: Output Blazor App Logs (on failure)
       if: failure()
       run: cat blazor.log
-
-    - name: Output Blazor App Logs
-      run: cat blazor.log
-
 
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
