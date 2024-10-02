@@ -31,6 +31,7 @@ public class Tests : PageTest
         await Page.GetByRole(AriaRole.Link, new() { Name = "Weather" }).ClickAsync();
         await Page.GetByRole(AriaRole.Link, new() { Name = "Counter" }).ClickAsync();
         await Page.GetByRole(AriaRole.Button, new() { Name = "Click me" }).DblClickAsync();
+        await Page.GetByRole(AriaRole.Button, new() { Name = "Click ME" }).DblClickAsync();
 
 
         // Close the browser after the test
