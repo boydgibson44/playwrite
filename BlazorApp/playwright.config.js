@@ -5,9 +5,14 @@ module.exports = defineConfig({
     testDir: './tests', // Your test directory
     fullyParallel: true,
     forbidOnly: !!process.env.CI,
-    retries: process.env.CI ? 2 : 0,
+    retries: process.env.CI ? 2 : 0,  // Add retries here
     workers: process.env.CI ? 1 : undefined,
     reporter: 'html',
+    use: {
+        timeout: 60000,
+        trace: 'on',
+        waitUntil: 'networkidle',
+    },
 
     use: {
         timeout: 60000,

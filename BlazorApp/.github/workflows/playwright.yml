@@ -61,7 +61,7 @@ jobs:
       run: curl --fail http://localhost:5128 || exit 1
 
     - name: Run Playwright tests
-      run: npx playwright test --retries=2 --timeout=180000  # Increased timeout to 3 minutes
+      run: npx playwright test --retries=2 --timeout=120000
 
     - name: Output Blazor App Logs
       if: failure()
