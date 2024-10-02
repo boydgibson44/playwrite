@@ -18,10 +18,10 @@ jobs:
         node-version: 'lts/*'
     - name: Install dependencies
       run: npm ci
-    - name: Install Playwright Browsers and Dependencies
+    - name: Install Playwright Browsers
       run: npx playwright install --with-deps
     - name: Verify Playwright Test Installation
-      run: npm list @playwright/test  # Optional check to ensure the package is installed
+      run: npm list @playwright/test  # Verifies that the module is installed
     - name: Run Playwright tests
       run: npx playwright test
     - uses: actions/upload-artifact@v4
