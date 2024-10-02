@@ -35,10 +35,10 @@ jobs:
         dotnet build BlazorApp/BlazorApp.csproj
     
         echo "Starting Blazor App..."
-        dotnet run --project BlazorApp/BlazorApp.csproj --urls "http://localhost:5128" > blazor.log 2>&1 &
+        nohup dotnet run --project BlazorApp/BlazorApp.csproj --urls "http://localhost:5128" > blazor.log 2>&1 &
   
         echo "Waiting for Blazor App to start..."
-        MAX_WAIT=180  # 3 minutes to wait
+        MAX_WAIT=300  # Increased wait to 5 minutes
         TIME_WAITED=0
         until curl --output /dev/null --silent --fail http://localhost:5128 || [ "$TIME_WAITED" -ge "$MAX_WAIT" ]; do
           echo "Waiting for Blazor app at http://localhost:5128... (${TIME_WAITED}s/${MAX_WAIT}s)"
