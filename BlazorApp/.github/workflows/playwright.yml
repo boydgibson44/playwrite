@@ -31,8 +31,29 @@ jobs:
 
     - name: Build and Run Blazor App
       run: |
+        echo "Building Blazor App..."
         dotnet build BlazorApp/BlazorApp.csproj
-        nohup dotnet run --project BlazorApp/BlazorApp.csproj > blazor.log 2>&1 &
+    
+        echo "Starting Blazor App..."
+        dotnet run --project BlazorApp/BlazorApp.csproj --urls "http://localhost:5128" > blazor.log 2>&1 &
+  
+        echo "Waiting for Blazor App to start..."
+        MAX_WAIT=120
+        TIME_WAITED=0
+        until curl --output /dev/null --silent --fail http://localhost:5128 || [ "$TIME_WAITED" -ge "$MAX_WAIT" ]; do
+          echo "Waiting for Blazor app at http://localhost:5128... (${TIME_WAITED}s/${MAX_WAIT}s)"
+          sleep 5
+          TIME_WAITED=$((TIME_WAITED + 5))
+        done
+
+        if [ "$TIME_WAITED" -ge "$MAX_WAIT" ]; then
+          echo "Blazor app failed to start within ${MAX_WAIT} seconds."
+          cat blazor.log
+          exit 1
+        else
+          echo "Blazor app started successfully."
+        fi
+
 
     - name: Output Blazor Logs for Debugging
       run: |
