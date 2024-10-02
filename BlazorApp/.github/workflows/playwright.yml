@@ -23,20 +23,19 @@ jobs:
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
 
-    # Start the Blazor app in the background
-    - name: Start Blazor App
+    # Build and start the Blazor App
+    - name: Build and Run Blazor App
       run: |
         dotnet build BlazorApp/BlazorApp.csproj
         nohup dotnet run --project BlazorApp/BlazorApp.csproj &
 
-    # Wait for the server to be available before running tests
+    # Wait for Blazor App to be ready
     - name: Wait for Blazor App to be ready
       run: |
         until curl --output /dev/null --silent --head --fail http://localhost:5128; do
-          echo 'Waiting for the Blazor app...'
+          echo 'Waiting for Blazor App...'
           sleep 5
         done
-      shell: bash
 
     # Run Playwright tests
     - name: Run Playwright tests
