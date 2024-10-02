@@ -27,7 +27,7 @@ jobs:
     - name: Install .NET SDK 8.0
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '8.x'  # Install .NET 8.0 SDK
+        dotnet-version: '8.x'  # Make sure you're using .NET 8.0
 
     - name: Build and Run Blazor App
       run: |
@@ -36,8 +36,9 @@ jobs:
 
     - name: Wait for Blazor App to be ready
       run: |
+        echo "Waiting for Blazor app to start..."
         until curl --output /dev/null --silent --head --fail http://localhost:5128; do
-          echo 'Waiting for Blazor App...'
+          echo "Waiting for Blazor app at http://localhost:5128..."
           sleep 5
         done
 
