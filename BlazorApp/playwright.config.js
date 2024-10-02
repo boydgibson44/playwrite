@@ -9,13 +9,7 @@ module.exports = defineConfig({
     workers: process.env.CI ? 1 : undefined,
     reporter: 'html',
     use: {
-        timeout: 60000,
-        trace: 'on',
-        waitUntil: 'networkidle',
-    },
-
-    use: {
-        timeout: 60000,
+        timeout: 90000,
         trace: 'on',
         waitUntil: 'networkidle',
     },

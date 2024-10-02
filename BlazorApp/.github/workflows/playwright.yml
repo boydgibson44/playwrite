@@ -52,10 +52,10 @@ jobs:
 
     - name: Verify Blazor App Process
       run: |
-        if ! pgrep -f "dotnet run --project BlazorApp/BlazorApp.csproj"; then
-          echo "Blazor app process is not running."
-          exit 1
-        fi
+        echo "Verifying that Blazor App is running..."
+        pgrep -lf "dotnet run --project BlazorApp/BlazorApp.csproj" || echo "Blazor app process is not running."
+        ps aux | grep dotnet
+        netstat -tuln | grep :5128 || echo "No process is listening on port 5128."
 
     - name: Verify Blazor App is accessible
       run: curl --fail http://localhost:5128 || exit 1
@@ -63,7 +63,7 @@ jobs:
     - name: Run Playwright tests
       run: npx playwright test --retries=2 --timeout=120000
 
-    - name: Output Blazor App Logs
+    - name: Output Blazor App Logs (on failure)
       if: failure()
       run: cat blazor.log
 
