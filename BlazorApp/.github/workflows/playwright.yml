@@ -70,6 +70,10 @@ jobs:
       if: failure()
       run: cat blazor.log
 
+    - name: Output Blazor App Logs
+      run: cat blazor.log
+
+
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
