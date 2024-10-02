@@ -61,6 +61,9 @@ jobs:
         echo "Blazor app is running at $URL"
         echo "URL=$URL" >> $GITHUB_ENV
 
+    - name: Print Captured URL for Debugging
+      run: echo "Captured Blazor app URL is: ${{ env.URL }}"
+
     - name: Verify Blazor App Process
       run: |
         echo "Verifying that Blazor App is running..."
