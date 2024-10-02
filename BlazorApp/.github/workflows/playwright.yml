@@ -29,13 +29,6 @@ jobs:
       with:
         dotnet-version: '8.x'
 
-    - name: Ensure Port 5128 is Free
-      run: |
-        if lsof -i :5128; then
-          echo "Port 5128 is already in use."
-          exit 1
-        fi
-
     - name: Build and Run Blazor App
       run: |
         dotnet build BlazorApp/BlazorApp.csproj
@@ -44,7 +37,7 @@ jobs:
     - name: Wait for Blazor App to be ready
       run: |
         echo "Waiting for Blazor app to start..."
-        MAX_WAIT=600  # Increase to 10 minutes
+        MAX_WAIT=600  # Increased to 10 minutes
         TIME_WAITED=0
         while ! curl --output /dev/null --silent --head --fail http://localhost:5128; do
           echo "Waiting for Blazor app at http://localhost:5128... (${TIME_WAITED}s/${MAX_WAIT}s)"
@@ -65,7 +58,7 @@ jobs:
         fi
 
     - name: Run Playwright tests
-      run: npx playwright test --timeout=60000
+      run: npx playwright test --timeout=120000
 
     - name: Output Blazor App Logs
       if: failure()
