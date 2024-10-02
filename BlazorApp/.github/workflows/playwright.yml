@@ -54,45 +54,17 @@ jobs:
           echo "Blazor app started successfully."
         fi
 
-
     - name: Output Blazor Logs for Debugging
       run: |
         echo "Blazor app log:"
         cat blazor.log
 
-    - name: Wait for Blazor App to be ready and capture URL
+    - name: Capture the Base URL of the Blazor App
       id: blazor-url
-      run: |
-        echo "Waiting for Blazor app to start..."
-        MAX_WAIT=900  # wait for up to 15 minutes
-        TIME_WAITED=0
-        URL=""
-        while [ -z "$URL" ]; do
-          URL=$(grep -Eo 'http://localhost:[0-9]+' blazor.log | head -1)
-          if [ -z "$URL" ]; then
-            echo "Blazor app URL not found yet. Waiting..."
-            cat blazor.log  # Print log to see what's happening during the wait
-          fi
-          if [ "$TIME_WAITED" -ge "$MAX_WAIT" ]; then
-            echo "Blazor app failed to start within ${MAX_WAIT} seconds."
-            cat blazor.log
-            exit 1
-          fi
-          sleep 5
-          TIME_WAITED=$((TIME_WAITED + 5))
-        done
-        echo "Blazor app is running at $URL"
-        echo "URL=$URL" >> $GITHUB_ENV
+      run: echo "URL=http://localhost:5128" >> $GITHUB_ENV
 
     - name: Print Captured URL for Debugging
       run: echo "Captured Blazor app URL is: ${{ env.URL }}"
-
-    - name: Verify Blazor App Process
-      run: |
-        echo "Verifying that Blazor App is running..."
-        pgrep -lf "dotnet run --project BlazorApp/BlazorApp.csproj" || echo "Blazor app process is not running."
-        ps aux | grep dotnet
-        netstat -tuln | grep -Eo ':[0-9]+' || echo "No process is listening on any expected port."
 
     - name: Run Playwright tests
       run: |
