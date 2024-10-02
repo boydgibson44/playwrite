@@ -34,6 +34,11 @@ jobs:
         dotnet build BlazorApp/BlazorApp.csproj
         nohup dotnet run --project BlazorApp/BlazorApp.csproj > blazor.log 2>&1 &
 
+    - name: Output Blazor Logs for Debugging
+      run: |
+        echo "Blazor app log:"
+        cat blazor.log
+
     - name: Wait for Blazor App to be ready and capture URL
       id: blazor-url
       run: |
@@ -43,11 +48,13 @@ jobs:
         URL=""
         while [ -z "$URL" ]; do
           URL=$(grep -Eo 'http://localhost:[0-9]+' blazor.log | head -1)
+          if [ -z "$URL" ]; then
+            echo "Blazor app URL not found yet. Waiting..."
+          fi
           if [ "$TIME_WAITED" -ge "$MAX_WAIT" ]; then
             echo "Blazor app failed to start within ${MAX_WAIT} seconds."
             exit 1
           fi
-          echo "Waiting for Blazor app at ${URL}... (${TIME_WAITED}s/${MAX_WAIT}s)"
           sleep 5
           TIME_WAITED=$((TIME_WAITED + 5))
         done
