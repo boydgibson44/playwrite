@@ -8,7 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="tests\fail.spec.ts" />
     <None Remove="tests\typescripttesting.spec.ts" />
   </ItemGroup>
 
@@ -27,7 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <TypeScriptCompile Include="tests\fail.spec.ts" />
     <TypeScriptCompile Include="tests\typescripttesting.spec.ts" />
   </ItemGroup>
 
