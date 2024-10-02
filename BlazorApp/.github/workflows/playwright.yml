@@ -2,9 +2,9 @@ name: Playwright Tests
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
 
 jobs:
   test:
@@ -16,14 +16,25 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: 'lts/*'
+
     - name: Install dependencies
       run: npm ci
+
+    - name: List installed packages
+      run: npm list
+
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
-    - name: Verify Playwright Test Installation
-      run: npm list @playwright/test  # Verifies that the module is installed
+
+    - name: Clean dist folder (if applicable)
+      run: rm -rf BlazorApp/dist
+
+    - name: List Playwright tests
+      run: npx playwright test --list
+
     - name: Run a specific Playwright test
       run: npx playwright test BlazorApp/tests/typescripttesting.spec.js  # Runs only this specific test file
+
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
