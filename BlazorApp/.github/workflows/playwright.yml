@@ -27,18 +27,17 @@ jobs:
     - name: Install .NET SDK 8.0
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '8.x'  # Make sure you're using .NET 8.0
+        dotnet-version: '8.x'
 
     - name: Build and Run Blazor App
       run: |
         dotnet build BlazorApp/BlazorApp.csproj
-        # Ensure the app runs on the correct port 5128
-        nohup dotnet run --project BlazorApp/BlazorApp.csproj --urls http://localhost:5128 &
+        nohup dotnet run --project BlazorApp/BlazorApp.csproj --urls "http://localhost:5128" &
 
     - name: Wait for Blazor App to be ready
       run: |
         echo "Waiting for Blazor app to start..."
-        MAX_WAIT=300   # Wait for up to 5 minutes (300 seconds)
+        MAX_WAIT=300
         TIME_WAITED=0
         while ! curl --output /dev/null --silent --head --fail http://localhost:5128; do
           echo "Waiting for Blazor app at http://localhost:5128... (${TIME_WAITED}s/${MAX_WAIT}s)"
@@ -51,19 +50,14 @@ jobs:
         done
         echo "Blazor app is up and running at http://localhost:5128"
 
-
-    - name: Delay before running tests
-      run: sleep 10  # Wait an additional 10 seconds
-
-
     - name: Run Playwright tests
-      run: npx playwright test --timeout=60000  # Increase Playwright timeout to 60s for each test
+      run: npx playwright test --timeout=60000
 
     - name: Output Blazor App Logs (optional, for debugging)
       if: failure()
       run: |
         echo "Displaying Blazor app logs..."
-        cat nohup.out || true  # Output logs even if the command fails
+        cat nohup.out || true
 
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
