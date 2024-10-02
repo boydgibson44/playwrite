@@ -29,6 +29,13 @@ jobs:
       with:
         dotnet-version: '8.x'
 
+    - name: Check for port 5128 usage
+      run: |
+        if lsof -i :5128; then
+          echo "Port 5128 is in use, cannot start the app."
+          exit 1
+        fi
+
     - name: Build and Run Blazor App
       run: |
         dotnet build BlazorApp/BlazorApp.csproj
@@ -56,6 +63,9 @@ jobs:
           echo "Blazor app process is not running."
           exit 1
         fi
+
+    - name: Verify Blazor App is accessible
+      run: curl --fail http://localhost:5128 || exit 1
 
     - name: Run Playwright tests
       run: npx playwright test --timeout=120000
