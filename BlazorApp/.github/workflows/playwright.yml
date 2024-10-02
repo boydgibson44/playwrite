@@ -65,12 +65,12 @@ jobs:
         echo "Captured URL=http://localhost:5128"
         echo "URL=http://localhost:5128" >> $GITHUB_ENV
 
-    - name: Print Captured URL for Debugging
-      run: echo "Captured Blazor app URL is: ${{ env.URL }}"
-
     - name: Verify Blazor App is Running
       run: |
         curl http://localhost:5128 || echo "Blazor app is not reachable"
+
+    - name: Print Captured URL for Debugging
+      run: echo "Captured Blazor app URL is: ${{ env.URL }}"
 
     - name: Run Playwright tests
       run: |
