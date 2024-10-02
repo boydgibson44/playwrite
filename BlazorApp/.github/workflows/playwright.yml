@@ -32,36 +32,39 @@ jobs:
     - name: Build and Run Blazor App
       run: |
         dotnet build BlazorApp/BlazorApp.csproj
-        nohup dotnet run --project BlazorApp/BlazorApp.csproj --urls "http://localhost:5128" > blazor.log 2>&1 &
+        nohup dotnet run --project BlazorApp/BlazorApp.csproj > blazor.log 2>&1 &
 
-    - name: Wait for Blazor App to be ready
+    - name: Wait for Blazor App to be ready and capture URL
+      id: blazor-url
       run: |
         echo "Waiting for Blazor app to start..."
-        MAX_WAIT=900  # Increased to 15 minutes
+        MAX_WAIT=900
         TIME_WAITED=0
-        while ! curl --output /dev/null --silent --head --fail http://localhost:5128; do
-          echo "Waiting for Blazor app at http://localhost:5128... (${TIME_WAITED}s/${MAX_WAIT}s)"
-          sleep 5
-          TIME_WAITED=$((TIME_WAITED + 5))
+        URL=""
+        while [ -z "$URL" ]; do
+          URL=$(grep -Eo 'http://localhost:[0-9]+' blazor.log | head -1)
           if [ "$TIME_WAITED" -ge "$MAX_WAIT" ]; then
             echo "Blazor app failed to start within ${MAX_WAIT} seconds."
             exit 1
           fi
+          echo "Waiting for Blazor app at ${URL}... (${TIME_WAITED}s/${MAX_WAIT}s)"
+          sleep 5
+          TIME_WAITED=$((TIME_WAITED + 5))
         done
-        echo "Blazor app is up and running at http://localhost:5128"
+        echo "Blazor app is running at $URL"
+        echo "URL=$URL" >> $GITHUB_ENV
 
     - name: Verify Blazor App Process
       run: |
         echo "Verifying that Blazor App is running..."
         pgrep -lf "dotnet run --project BlazorApp/BlazorApp.csproj" || echo "Blazor app process is not running."
         ps aux | grep dotnet
-        netstat -tuln | grep :5128 || echo "No process is listening on port 5128."
-
-    - name: Verify Blazor App is accessible
-      run: curl --fail http://localhost:5128 || exit 1
+        netstat -tuln | grep -Eo ':[0-9]+' || echo "No process is listening on any expected port."
 
     - name: Run Playwright tests
-      run: npx playwright test --retries=2 --timeout=120000
+      run: |
+        echo "Running Playwright tests on ${{ env.URL }}"
+        npx playwright test --retries=2 --timeout=120000 --base-url=${{ env.URL }}
 
     - name: Output Blazor App Logs (on failure)
       if: failure()
