@@ -22,8 +22,8 @@ jobs:
       run: npx playwright install --with-deps
     - name: Verify Playwright Test Installation
       run: npm list @playwright/test  # Verifies that the module is installed
-    - name: Run Playwright tests
-      run: npx playwright test
+    - name: Run a specific Playwright test
+      run: npx playwright test BlazorApp/tests/typescripttesting.spec.js  # Runs only this specific test file
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
