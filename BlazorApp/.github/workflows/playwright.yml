@@ -50,6 +50,7 @@ jobs:
           URL=$(grep -Eo 'http://localhost:[0-9]+' blazor.log | head -1)
           if [ -z "$URL" ]; then
             echo "Blazor app URL not found yet. Waiting..."
+            cat blazor.log  # Print log to see what's happening during the wait
           fi
           if [ "$TIME_WAITED" -ge "$MAX_WAIT" ]; then
             echo "Blazor app failed to start within ${MAX_WAIT} seconds."
