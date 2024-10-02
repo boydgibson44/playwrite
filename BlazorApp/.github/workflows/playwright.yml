@@ -20,24 +20,31 @@ jobs:
     - name: Install dependencies
       run: npm ci
 
-    - name: List installed packages
-      run: npm list
-
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
 
-    - name: Clean dist folder (if applicable)
-      run: rm -rf BlazorApp/dist
+    # Start the Blazor app in the background
+    - name: Start Blazor App
+      run: |
+        dotnet build BlazorApp/BlazorApp.csproj
+        nohup dotnet run --project BlazorApp/BlazorApp.csproj &
 
-    - name: List Playwright tests
-      run: npx playwright test --list
+    # Wait for the server to be available before running tests
+    - name: Wait for Blazor App to be ready
+      run: |
+        until curl --output /dev/null --silent --head --fail http://localhost:5128; do
+          echo 'Waiting for the Blazor app...'
+          sleep 5
+        done
+      shell: bash
 
-    - name: Run a specific Playwright test
-      run: npx playwright test tests/typescripttesting.spec.js  # Adjusted to match testDir
+    # Run Playwright tests
+    - name: Run Playwright tests
+      run: npx playwright test
 
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
         name: playwright-report
         path: playwright-report/
-        retention-days: 30  # Removed comment
+        retention-days: 30
