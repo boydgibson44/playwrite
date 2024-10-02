@@ -38,7 +38,7 @@ jobs:
         dotnet run --project BlazorApp/BlazorApp.csproj --urls "http://localhost:5128" > blazor.log 2>&1 &
   
         echo "Waiting for Blazor App to start..."
-        MAX_WAIT=300  # Wait for 5 minutes to allow enough time
+        MAX_WAIT=180  # 3 minutes to wait
         TIME_WAITED=0
         until curl --output /dev/null --silent --fail http://localhost:5128 || [ "$TIME_WAITED" -ge "$MAX_WAIT" ]; do
           echo "Waiting for Blazor app at http://localhost:5128... (${TIME_WAITED}s/${MAX_WAIT}s)"
@@ -61,9 +61,9 @@ jobs:
 
     - name: Verify Blazor App is Running
       run: |
+        echo "Verifying Blazor app process and port..."
         pgrep -lf "dotnet run" || echo "Blazor app process is not running."
-        curl http://localhost:5128 || echo "Cannot access Blazor app on port 5128"
-        netstat -tuln | grep ':5128' || echo "Port 5128 is not in use"
+        netstat -tuln | grep ':5128' || echo "Port 5128 is not in use."
 
     - name: Capture the Base URL of the Blazor App
       id: blazor-url
