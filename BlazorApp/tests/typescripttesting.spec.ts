@@ -12,3 +12,5 @@ test('test', async ({ page }) => {
     await page.getByRole('heading', { name: 'Weather' }).click();
     await page.getByText('This component demonstrates').click();
 });
+
+//making change to test the commit block
