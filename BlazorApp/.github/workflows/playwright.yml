@@ -44,15 +44,20 @@ jobs:
       # Step 7: Start Blazor WebAssembly app
       - name: Start Blazor WebAssembly app
         run: |
-          dotnet run --project BlazorApp/BlazorApp.csproj --urls http://localhost:5128 &
-        timeout-minutes: 1
+          nohup dotnet run --project BlazorApp/BlazorApp.csproj --urls http://localhost:5128 > /dev/null 2>&1 &
+        timeout-minutes: 3
 
-      # Step 8: Run Playwright tests
+      # Step 8: Wait for Blazor WebAssembly app to be available
+      - name: Wait for Blazor WebAssembly app to be available
+        run: |
+          timeout 60 sh -c 'until curl -sSf http://localhost:5128; do sleep 5; done'
+
+      # Step 9: Run Playwright tests
       - name: Run Playwright tests
         run: |
           npx playwright test --config=playwright.config.js
 
-      # Step 9: Upload Playwright test results (Optional)
+      # Step 10: Upload Playwright test results (Optional)
       - name: Upload Playwright test results
         if: always()
         uses: actions/upload-artifact@v2
