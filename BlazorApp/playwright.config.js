@@ -25,7 +25,9 @@ module.exports = defineConfig({
             name: 'firefox',
             use: { ...devices['Desktop Firefox'] },  // Desktop Firefox configuration
         },
-        // Uncomment to run tests on WebKit (Safari)
+
+
+        // Uncomment to run tests on WebKit (Safari) ; wasnt working
         // {
         //     name: 'webkit',
         //     use: {
@@ -36,7 +38,10 @@ module.exports = defineConfig({
         //         trace: 'on-first-retry',
         //     },
         // },
-        // Uncomment to run tests on Mobile Safari
+
+
+
+        // Uncomment to run tests on Mobile Safari ; wasnt working
         // {
         //     name: 'Mobile Safari',
         //     use: {
