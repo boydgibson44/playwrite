@@ -41,11 +41,10 @@ jobs:
       - name: Build the Blazor project
         run: dotnet build --configuration Release
 
-      # Step 7: Start the Blazor WebAssembly app
+      # Step 7: Start Blazor WebAssembly app
       - name: Start Blazor WebAssembly app
         run: |
-          dotnet run --project YourBlazorProject.csproj --urls http://localhost:5128 &
-        # Wait for the server to start
+          dotnet run --project BlazorApp/BlazorApp.csproj --urls http://localhost:5128 &
         timeout-minutes: 1
 
       # Step 8: Run Playwright tests
@@ -55,7 +54,7 @@ jobs:
 
       # Step 9: Upload Playwright test results (Optional)
       - name: Upload Playwright test results
-        if: always() # Ensure this runs even if tests fail
+        if: always()
         uses: actions/upload-artifact@v2
         with:
           name: playwright-results
