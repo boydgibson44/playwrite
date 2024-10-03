@@ -11,8 +11,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # Cache Node.js dependencies (npm cache)
+    - name: Cache Node.js dependencies (npm cache)
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
+    # Cache Node.js dependencies (node_modules)
+    - name: Cache Node.js dependencies (node_modules)
+      uses: actions/cache@v3
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-modules-
+
+    # Cache .NET dependencies
+    - name: Cache .NET dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-dotnet-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-dotnet-
+
     # Step 1: Checkout the repository
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v3
 
     # Step 2: Set up Node.js (for Playwright)
     - uses: actions/setup-node@v4
