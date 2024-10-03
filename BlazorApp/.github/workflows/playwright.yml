@@ -1,91 +1,62 @@
-name: Playwright Tests
+name: Playwright Tests for Blazor
 
 on:
   push:
-    branches: [main, master]
+    branches:
+      - main
   pull_request:
-    branches: [main, master]
+    branches:
+      - main
 
 jobs:
-  test:
-    timeout-minutes: 60
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - uses: actions/setup-node@v4
-      with:
-        node-version: 'lts/*'
+      # Step 2: Set up .NET Core for Blazor WebAssembly
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: '8.0.x'  # Use .NET 8.0 as per your project file
 
-    - name: Install dependencies
-      run: npm ci
+      # Step 3: Install Node.js (required for Playwright)
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'  # Compatible Node.js version
 
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
+      # Step 4: Install Playwright dependencies
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
 
-    - name: Install .NET SDK 8.0
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '8.x'
+      # Step 5: Restore .NET dependencies
+      - name: Restore .NET dependencies
+        run: dotnet restore
 
-    - name: Build and Run Blazor App
-      run: |
-        echo "Building Blazor App..."
-        dotnet build BlazorApp/BlazorApp.csproj
-    
-        echo "Starting Blazor App..."
-        nohup dotnet run --project BlazorApp/BlazorApp.csproj --urls "http://localhost:5128" > blazor.log 2>&1 &
-  
-        echo "Waiting for Blazor App to start..."
-        MAX_WAIT=300  # Increased wait time to 5 minutes
-        TIME_WAITED=0
-        until curl --output /dev/null --silent --fail http://localhost:5128 || [ "$TIME_WAITED" -ge "$MAX_WAIT" ]; do
-          echo "Waiting for Blazor app at http://localhost:5128... (${TIME_WAITED}s/${MAX_WAIT}s)"
-          sleep 5
-          TIME_WAITED=$((TIME_WAITED + 5))
-        done
+      # Step 6: Build the Blazor project
+      - name: Build the Blazor project
+        run: dotnet build --configuration Release
 
-        if [ "$TIME_WAITED" -ge "$MAX_WAIT" ]; then
-          echo "Blazor app failed to start within ${MAX_WAIT} seconds."
-          cat blazor.log
-          exit 1
-        else
-          echo "Blazor app started successfully."
-        fi
+      # Step 7: Start the Blazor WebAssembly app
+      - name: Start Blazor WebAssembly app
+        run: |
+          dotnet run --project YourBlazorProject.csproj --urls http://localhost:5128 &
+        # Wait for the server to start
+        timeout-minutes: 1
 
-    - name: Output Blazor Logs for Debugging
-      run: |
-        echo "Blazor app log:"
-        cat blazor.log
+      # Step 8: Run Playwright tests
+      - name: Run Playwright tests
+        run: |
+          npx playwright test --config=playwright.config.js
 
-    - name: Verify Blazor App is Running
-      run: |
-        echo "Verifying Blazor app process and port..."
-        ps aux | grep '[d]otnet run' || echo "Blazor app process is not running."
-        netstat -tuln | grep ':5128' || echo "Port 5128 is not in use."
-
-    - name: Capture the Base URL of the Blazor App
-      id: blazor-url
-      run: |
-        echo "Captured URL=http://localhost:5128"
-        echo "URL=http://localhost:5128" >> $GITHUB_ENV
-
-    - name: Print Captured URL for Debugging
-      run: echo "Captured Blazor app URL is: ${{ env.URL }}"
-
-    - name: Run Playwright tests
-      run: |
-        echo "Running Playwright tests on ${{ env.URL }}"
-        npx playwright test --retries=2 --timeout=120000 --base-url=${{ env.URL }}
-
-    - name: Output Blazor App Logs (on failure)
-      if: failure()
-      run: cat blazor.log
-
-    - uses: actions/upload-artifact@v4
-      if: ${{ !cancelled() }}
-      with:
-        name: playwright-report
-        path: playwright-report/
-        retention-days: 30
+      # Step 9: Upload Playwright test results (Optional)
+      - name: Upload Playwright test results
+        if: always() # Ensure this runs even if tests fail
+        uses: actions/upload-artifact@v2
+        with:
+          name: playwright-results
+          path: playwright-report/
