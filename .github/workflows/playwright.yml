@@ -1,27 +1,82 @@
-name: Playwright Tests
+name: Playwright Tests for Blazor
+
 on:
   push:
-    branches: [ main, master ]
+    branches:
+      - main
   pull_request:
-    branches: [ main, master ]
+    branches:
+      - main
+
 jobs:
-  test:
-    timeout-minutes: 60
+  build-and-test:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: lts/*
-    - name: Install dependencies
-      run: npm ci
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
-    - name: Run Playwright tests
-      run: npx playwright test
-    - uses: actions/upload-artifact@v4
-      if: ${{ !cancelled() }}
-      with:
-        name: playwright-report
-        path: playwright-report/
-        retention-days: 30
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up .NET Core for Blazor WebAssembly
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: '8.0.x'  # Use .NET 8.0 as per your project file
+
+      # Step 3: Install Node.js (required for Playwright)
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'  # Compatible Node.js version
+
+      # Step 4: Install Playwright dependencies
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      # Step 5: Restore .NET dependencies
+      - name: Restore .NET dependencies
+        run: dotnet restore
+
+      # Step 6: Build the Blazor project
+      - name: Build the Blazor project
+        run: dotnet build --configuration Release
+
+      # Step 7: Start Blazor WebAssembly app in the background (with logging)
+      - name: Start Blazor WebAssembly app
+        run: |
+          nohup dotnet run --project BlazorApp/BlazorApp.csproj --urls http://localhost:5128 > app.log 2>&1 &
+        timeout-minutes: 3
+
+      # Step 8: Wait for Blazor WebAssembly app to be available (longer wait)
+      - name: Wait for Blazor WebAssembly app to be available
+        run: |
+          echo "Waiting for Blazor WebAssembly app to be available..."
+          for i in {1..10}; do
+            curl --silent --fail http://localhost:5128 && break
+            echo "Waiting for the server... retry $i"
+            sleep 6
+          done
+          curl --silent --fail http://localhost:5128 || (echo "Server not available, failing build." && exit 1)
+
+      # Step 9: Print Blazor App Logs if the server fails to start
+      - name: Print Blazor App Logs
+        if: failure()
+        run: cat app.log
+
+      # Step 10: Print confirmation that the app is running and print the URL
+      - name: Print App URL
+        run: |
+          echo "Blazor WebAssembly app is running at: http://localhost:5128"
+
+      # Step 11: Run Playwright tests
+      - name: Run Playwright tests
+        run: |
+          npx playwright test --config=playwright.config.js
+
+      # Step 12: Upload Playwright test results (Optional)
+      - name: Upload Playwright test results
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: playwright-results
+          path: playwright-report/
