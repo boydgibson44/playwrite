@@ -42,7 +42,6 @@ module.exports = defineConfig({
 
 
 
-
         // Uncomment to run tests on Mobile Safari ; wasnt working
         // {
         //     name: 'Mobile Safari',
