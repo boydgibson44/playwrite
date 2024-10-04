@@ -6,7 +6,7 @@ module.exports = defineConfig({
     fullyParallel: true,  // Enable parallel execution for all tests
     forbidOnly: !!process.env.CI,  // Prevent accidental use of test.only in CI
     retries: process.env.CI ? 2 : 0,  // Retry on CI for better reliability
-    workers: process.env.CI ? 4 : 2, // Increase to 4 workers in CI
+    workers: process.env.CI ? 4 : undefined, // Increase to 4 workers in CI
     //workers: process.env.CI ? 2 : undefined,  // Use 2 worker in CI for stability
     reporter: process.env.CI ? [['html'], ['junit', { outputFile: 'test-results/results.xml' }]] : 'html',  // Use JUnit in CI along with HTML
 
