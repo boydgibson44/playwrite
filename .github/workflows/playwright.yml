@@ -45,7 +45,22 @@ jobs:
     - name: Install Chromium and Firefox Browsers
       run: npx playwright install chromium firefox
 
-    # Step 7: Cache .NET packages
+    # Step 7: Cache .NET SDK
+    - name: Cache .NET SDK
+      uses: actions/cache@v3
+      with:
+        path: ~/.dotnet
+        key: ${{ runner.os }}-dotnet-${{ hashFiles('global.json') }}
+        restore-keys: |
+          ${{ runner.os }}-dotnet-
+
+    # Step 8: Set up .NET Core for Blazor WebAssembly
+    - name: Set up .NET Core
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '8.0.x'
+
+    # Step 9: Cache .NET packages
     - name: Cache .NET packages
       uses: actions/cache@v3
       with:
@@ -54,27 +69,21 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-nuget-
 
-    # Step 8: Set up .NET Core for Blazor WebAssembly
-    - name: Set up .NET Core
-      uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: '8.0.x'
-
-    # Step 9: Restore .NET dependencies
+    # Step 10: Restore .NET dependencies
     - name: Restore .NET dependencies
       run: dotnet restore
 
-    # Step 10: Build the Blazor project
+    # Step 11: Build the Blazor project
     - name: Build the Blazor project
       run: dotnet build --configuration Release
 
-    # Step 11: Start Blazor WebAssembly app in the background
+    # Step 12: Start Blazor WebAssembly app in the background
     - name: Start Blazor WebAssembly app
       run: |
         nohup dotnet run --project BlazorApp/BlazorApp.csproj --urls http://localhost:5128 > app.log 2>&1 &
       timeout-minutes: 3
 
-    # Step 12: Wait for Blazor WebAssembly app to be available
+    # Step 13: Wait for Blazor WebAssembly app to be available
     - name: Wait for Blazor WebAssembly app to be available
       run: |
         echo "Waiting for Blazor WebAssembly app to be available..."
@@ -85,11 +94,11 @@ jobs:
         done
         curl --silent --fail http://localhost:5128 || (echo "Server not available, failing build." && exit 1)
 
-    # Step 13: Run Playwright tests
+    # Step 14: Run Playwright tests
     - name: Run Playwright tests
       run: npx playwright test --workers=4
 
-    # Step 14: Upload Playwright test report (optional)
+    # Step 15: Upload Playwright test report (optional)
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
