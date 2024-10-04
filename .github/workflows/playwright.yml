@@ -78,10 +78,10 @@ jobs:
           npx playwright install --with-deps
           npx playwright test --config=playwright.config.js --headless
 
-      # Step 9: Upload Playwright test results (optional)
+      # Step 9: Upload Playwright test results (use v3)
       - name: Upload Playwright test results
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3  # Updated to v3
         with:
           name: playwright-results
           path: playwright-report/
