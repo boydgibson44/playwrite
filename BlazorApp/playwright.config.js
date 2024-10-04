@@ -8,7 +8,7 @@ module.exports = defineConfig({
     retries: process.env.CI ? 2 : 0,  // Retry on CI for better reliability
     workers: process.env.CI ? 4 : undefined, // Increase to 4 workers in CI
     //workers: process.env.CI ? 2 : undefined,  // Use 2 worker in CI for stability
-    reporter: process.env.CI ? [['html'], ['junit', { outputFile: 'test-results/results.xml' }]] : 'html',  // Use JUnit in CI along with HTML
+    reporter: process.env.CI ? [['html', { outputFolder: 'playwright-report', open: 'never' }], ['junit', { outputFile: 'test-results/results.xml' }]] : 'html',  // Use JUnit in CI along with HTML
 
     use: {
         baseURL: process.env.URL || 'http://localhost:5128',  // Base URL from env or fallback to localhost
